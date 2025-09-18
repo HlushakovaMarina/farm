@@ -122,4 +122,5 @@ public class VegetableController {
         List<Vegetable> vegetables = vegetableService.findByColorAndWeight(color, weight);
         return ResponseEntity.ok(vegetables);
     }
+
 }
