@@ -21,4 +21,5 @@ public interface FarmRepository extends JpaRepository<Farm, Long> {
     
     @Query("SELECT f FROM Farm f")
     List<Farm> findAllWithVegetablesAndFruits();
+
 }

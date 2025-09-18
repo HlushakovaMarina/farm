@@ -24,4 +24,6 @@ public interface VegetableServiceInterface {
     List<Vegetable> findByColor(String color);
     
     boolean existsById(Long id);
+
+    List<Vegetable> findByColorAndWeight(String color, Double weight);
 }

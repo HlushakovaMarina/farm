@@ -115,12 +115,6 @@ public class VegetableController {
         List<Vegetable> vegetables = vegetableService.getVegetablesByFarmId(farmId);
         return ResponseEntity.ok(vegetables);
     }
-    @GetMapping("/getByColorAndWeight")
-    public ResponseEntity<List<Vegetable>>getVegetableByColorAndWeight
-            (@RequestParam(name = "color") String color,
-             @RequestParam(name = "weight") Double weight){
-        List<Vegetable> vegetables = vegetableService.findByColorAndWeight(color, weight);
-        return ResponseEntity.ok(vegetables);
-    }
+
 
 }

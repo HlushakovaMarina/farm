@@ -1,6 +1,9 @@
 package by.ilyushenko.farm.controller;
 
 import by.ilyushenko.farm.entity.Farm;
+import by.ilyushenko.farm.exception.BusinessException;
+import by.ilyushenko.farm.exception.GlobalExceptionHandler;
+import by.ilyushenko.farm.exception.ResourceNotFoundException;
 import by.ilyushenko.farm.service.FarmServiceInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -12,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,13 +32,24 @@ public class FarmController {
     public FarmController(FarmServiceInterface farmService) {
         this.farmService = farmService;
     }
-    
+
+
+    @GetMapping(value = "/testBusinessException")
+    public ResponseEntity<Void> testException(
+            @RequestParam String message){
+        throw new BusinessException(message);
+    }
+
     @GetMapping
     @Operation(summary = "Get all farms", description = "Retrieve a list of all farms with their vegetables and fruits")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list of farms"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+
+
+
+
     public ResponseEntity<List<Farm>> getAllFarms() {
         List<Farm> farms = farmService.getAllFarms();
         return ResponseEntity.ok(farms);
@@ -97,5 +113,12 @@ public class FarmController {
             @PathVariable Long id) {
         farmService.deleteFarm(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(("/getByLocation"))
+    public ResponseEntity<List<Farm>> getFarmByLocation(
+            @RequestParam String location){
+        List<Farm> farmByLocation = farmService.getFarmByLocation(location);
+        return ResponseEntity.ok(farmByLocation);
     }
 }

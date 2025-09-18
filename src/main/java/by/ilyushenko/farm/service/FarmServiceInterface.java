@@ -1,6 +1,7 @@
 package by.ilyushenko.farm.service;
 
 import by.ilyushenko.farm.entity.Farm;
+import by.ilyushenko.farm.entity.Vegetable;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,4 +23,6 @@ public interface FarmServiceInterface {
     Optional<Farm> findByName(String name);
     
     List<Farm> findByLocation(String location);
+
+    List<Farm> getFarmByLocation(String location);
 }

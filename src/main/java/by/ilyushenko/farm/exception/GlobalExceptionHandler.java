@@ -14,7 +14,32 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ErrorResponse> handleBusinessException(
+            BusinessException ex, WebRequest request) {
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                ex.getMessage(),
+                request.getDescription(false),
+                LocalDateTime.now(),
+                "Марина Г."
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(FarmNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleFarmNotFoundException(
+            FarmNotFoundException ex, WebRequest request){
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                "Ферма с такой локацией не найдена",
+                request.getDescription(false),
+                LocalDateTime.now(),
+                "Марина Г.");
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
             ResourceNotFoundException ex, WebRequest request) {
@@ -84,14 +109,23 @@ public class GlobalExceptionHandler {
         private String message;
         private String path;
         private LocalDateTime timestamp;
-        
+        private String nameAuthor;
+
         public ErrorResponse(int status, String message, String path, LocalDateTime timestamp) {
             this.status = status;
             this.message = message;
             this.path = path;
             this.timestamp = timestamp;
         }
-        
+
+        public ErrorResponse(int status, String message, String path, LocalDateTime timestamp, String nameAuthor) {
+            this.status = status;
+            this.message = message;
+            this.path = path;
+            this.timestamp = timestamp;
+            this.nameAuthor = nameAuthor;
+        }
+
         // Getters and setters
         public int getStatus() { return status; }
         public void setStatus(int status) { this.status = status; }
@@ -104,6 +138,14 @@ public class GlobalExceptionHandler {
         
         public LocalDateTime getTimestamp() { return timestamp; }
         public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+
+        public String getNameAuthor() {
+            return nameAuthor;
+        }
+
+        public void setNameAuthor(String nameAuthor) {
+            this.nameAuthor = nameAuthor;
+        }
     }
     
     public static class ValidationErrorResponse {
