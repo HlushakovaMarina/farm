@@ -1,5 +1,6 @@
 package by.ilyushenko.farm.service;
 
+import by.ilyushenko.farm.dto.FarmDto;
 import by.ilyushenko.farm.entity.Farm;
 import by.ilyushenko.farm.exception.FarmNotFoundException;
 import by.ilyushenko.farm.exception.ResourceNotFoundException;
@@ -75,5 +76,13 @@ public class FarmService implements FarmServiceInterface {
         } else{
             return farms;
         }
+    }
+    public FarmDto getFarmWithFruitCount(Long id){
+        Farm farm = farmRepository.findByIdWithVegetablesAndFruits(id)
+                .orElseThrow(()-> new ResourceNotFoundException("fa" +
+                        "Farm not found with id: " + id));
+        int fruitCount = farm.getFruits().size();
+        FarmDto farmDto = new FarmDto(farm.getName(),fruitCount);
+        return farmDto;
     }
 }

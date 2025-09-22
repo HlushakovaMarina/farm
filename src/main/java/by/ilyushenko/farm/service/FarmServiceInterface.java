@@ -1,5 +1,6 @@
 package by.ilyushenko.farm.service;
 
+import by.ilyushenko.farm.dto.FarmDto;
 import by.ilyushenko.farm.entity.Farm;
 import by.ilyushenko.farm.entity.Vegetable;
 
@@ -25,4 +26,6 @@ public interface FarmServiceInterface {
     List<Farm> findByLocation(String location);
 
     List<Farm> getFarmByLocation(String location);
+
+    FarmDto getFarmWithFruitCount(Long id);
 }

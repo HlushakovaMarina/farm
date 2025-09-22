@@ -1,5 +1,6 @@
 package by.ilyushenko.farm.controller;
 
+import by.ilyushenko.farm.dto.FarmDto;
 import by.ilyushenko.farm.entity.Farm;
 import by.ilyushenko.farm.exception.BusinessException;
 import by.ilyushenko.farm.exception.GlobalExceptionHandler;
@@ -46,10 +47,6 @@ public class FarmController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved list of farms"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-
-
-
-
     public ResponseEntity<List<Farm>> getAllFarms() {
         List<Farm> farms = farmService.getAllFarms();
         return ResponseEntity.ok(farms);
@@ -115,10 +112,10 @@ public class FarmController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping(("/getByLocation"))
-    public ResponseEntity<List<Farm>> getFarmByLocation(
-            @RequestParam String location){
-        List<Farm> farmByLocation = farmService.getFarmByLocation(location);
-        return ResponseEntity.ok(farmByLocation);
+    @GetMapping(("/{id}/getFarmWithFruitCount"))
+    public ResponseEntity<FarmDto> getFarmWithFruitCount(
+            @PathVariable(name = "id") Long id){
+        FarmDto farmDto = farmService.getFarmWithFruitCount(id);
+        return ResponseEntity.ok(farmDto);
     }
 }
