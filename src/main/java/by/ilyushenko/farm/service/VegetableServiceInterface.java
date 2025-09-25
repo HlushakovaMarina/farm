@@ -30,4 +30,6 @@ public interface VegetableServiceInterface {
     List<Vegetable> getVegetablesByMinWeight(Integer minWeight);
 
     Vegetable moveVegetableToFarm(Long vegetableId, Long farmId);
+
+    void deleteVegetablesByFarmId(Long farmId);
 }

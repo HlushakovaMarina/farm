@@ -1,7 +1,11 @@
 package by.ilyushenko.farm.service;
 
 import by.ilyushenko.farm.dto.FarmDto;
+import by.ilyushenko.farm.dto.FarmSortedDTO;
+import by.ilyushenko.farm.dto.FarmStatsDTO;
 import by.ilyushenko.farm.entity.Farm;
+import by.ilyushenko.farm.entity.Fruit;
+import by.ilyushenko.farm.entity.Vegetable;
 import by.ilyushenko.farm.exception.FarmNotFoundException;
 import by.ilyushenko.farm.exception.ResourceNotFoundException;
 import by.ilyushenko.farm.repository.FarmRepository;
@@ -11,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -70,48 +75,64 @@ public class FarmService implements FarmServiceInterface {
     public List<Farm> findByLocation(String location) {
         return farmRepository.findByLocationContainingIgnoreCase(location);
     }
-@Transactional(readOnly = true)
+
+    @Transactional(readOnly = true)
     public List<Farm> getFarmByLocation(String location) {
         List<Farm> farms = farmRepository.findByLocationContainingIgnoreCase(location);
-        if(farms.isEmpty()){
+        if (farms.isEmpty()) {
             throw new FarmNotFoundException(String.format("Ферма %s с такой локацией не найдена", location));
-        } else{
+        } else {
             return farms;
         }
     }
-    public FarmDto getFarmWithFruitCount(Long id){
+
+    public FarmDto getFarmWithFruitCount(Long id) {
         Farm farm = farmRepository.findByIdWithVegetablesAndFruits(id)
-                .orElseThrow(()-> new ResourceNotFoundException("fa" +
+                .orElseThrow(() -> new ResourceNotFoundException("fa" +
                         "Farm not found with id: " + id));
         int fruitCount = farm.getFruits().size();
-        FarmDto farmDto = new FarmDto(farm.getName(),fruitCount);
+        FarmDto farmDto = new FarmDto(farm.getName(), fruitCount);
         return farmDto;
     }
+
     //1. Поиск ферм по названию (частичный поиск)
     public List<Farm> searchFarmsByName(String searchTerm) {
         return farmRepository.findByNameContainingIgnoreCase(searchTerm);
     }
-//5. Получение статистики по ферме
-    public FarmStats getFarmStats(Long farmId) {
+
+    //5. Получение статистики по ферме
+    public FarmStatsDTO getFarmStats(Long farmId) {
         Farm farm = farmRepository.findById(farmId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Farm not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Farm not found with id: " + farmId));
+        int fruitCount = farm.getFruits().size();
+        int vegetableCount = farm.getVegetables().size();
+        double totalWeight = farm.getFruits().stream().mapToDouble(Fruit::getWeight).sum() +
+                farm.getVegetables().stream().mapToDouble(Vegetable::getWeight).sum();
+        return new FarmStatsDTO(farmId, farm.getName(), fruitCount, vegetableCount, totalWeight);
+    }
 
-        FarmStats stats = new FarmStats();
-        stats.setFarmId(farmId);
-        stats.setFarmName(farm.getName());
-        stats.setFruitCount(fruitRepository.countByFarmId(farmId));
-        stats.setVegetableCount(vegetableRepository.countByFarmId(farmId));
-
-        long totalWeight = 0;
-        List<Vegetable> vegetables = vegetableRepository.findByFarmId(farmId);
-        for (Vegetable vegetable : vegetables) {
-            totalWeight += vegetable.getWeight();
+    //8.
+    public List<FarmSortedDTO> findFarmsSorted(String sortBy, String order) {
+        if (!"fruits".equals(sortBy) && !"vegetables".equals(sortBy)) {
+            throw new IllegalArgumentException("sortBy должен быть или 'fruits' или 'vegetable")
         }
-        List<Fruit> fruits = fruitRepository.findByFarmId(farmId);
-        for (Fruit fruit : fruits) {
-            totalWeight += fruit.getWeight();
+        if (!"asc".equals(order) && !"desc".equals(order)) {
+            throw new IllegalArgumentException("order должен быть или 'asc' или 'desc")
         }
-        stats.setTotalWeight(totalWeight);
-        return stats;
+        List<Farm> farms = farmRepository.findAll();
+        List<FarmSortedDTO> farmsSortedDTO = farms.stream()
+                .map(farm -> new FarmSortedDTO(
+                        farm.getId(),
+                        farm.getName(),
+                        farm.getLocation(),
+                        farm.getFruits().size(),
+                        farm.getVegetables().size()
+                )).sorted(f1, f2 -> {
+                    sortBy.equals("fruits") ?
+                            Long.compare(f1.getFruitCount(), f2.getFtuitCount()) :
+                            Long.compare(f1.getVegetableCount(), f2.getVegetableCount()):
+                    return order.equals("asc") ? compare : -compare;
+                }).collect(Collectors.toList());
+        return farmsSortedDTO;
     }
 }

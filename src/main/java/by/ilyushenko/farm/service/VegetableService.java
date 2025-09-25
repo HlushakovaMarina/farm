@@ -131,7 +131,7 @@ public class VegetableService implements VegetableServiceInterface {
     @Transactional
     public void deleteVegetablesByFarmId(Long farmId) {
         if (!farmRepository.existsById(farmId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Farm not found");
+            throw new ResourceNotFoundException("Farm not found" + farmId);
         }
         vegetableRepository.deleteByFarmId(farmId);
     }

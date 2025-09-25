@@ -1,6 +1,7 @@
 package by.ilyushenko.farm.service;
 
 import by.ilyushenko.farm.dto.FarmDto;
+import by.ilyushenko.farm.dto.FarmStatsDTO;
 import by.ilyushenko.farm.entity.Farm;
 import by.ilyushenko.farm.entity.Vegetable;
 
@@ -31,5 +32,5 @@ public interface FarmServiceInterface {
 
     List<Farm> searchFarmsByName(String searchTerm);
 
-    FarmStats getFarmStats(Long farmId);
+    FarmStatsDTO getFarmStats(Long farmId);
 }

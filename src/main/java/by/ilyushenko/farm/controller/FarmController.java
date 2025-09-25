@@ -1,6 +1,7 @@
 package by.ilyushenko.farm.controller;
 
 import by.ilyushenko.farm.dto.FarmDto;
+import by.ilyushenko.farm.dto.FarmStatsDTO;
 import by.ilyushenko.farm.entity.Farm;
 import by.ilyushenko.farm.exception.BusinessException;
 import by.ilyushenko.farm.exception.GlobalExceptionHandler;
@@ -26,9 +27,9 @@ import java.util.Optional;
 @RequestMapping("/api/farms")
 @Tag(name = "Farm Management", description = "APIs for managing farms")
 public class FarmController {
-    
+
     private final FarmServiceInterface farmService;
-    
+
     @Autowired
     public FarmController(FarmServiceInterface farmService) {
         this.farmService = farmService;
@@ -37,7 +38,7 @@ public class FarmController {
 
     @GetMapping(value = "/testBusinessException")
     public ResponseEntity<Void> testException(
-            @RequestParam String message){
+            @RequestParam String message) {
         throw new BusinessException(message);
     }
 
@@ -51,7 +52,7 @@ public class FarmController {
         List<Farm> farms = farmService.getAllFarms();
         return ResponseEntity.ok(farms);
     }
-    
+
     @GetMapping("/{id}")
     @Operation(summary = "Get farm by ID", description = "Retrieve a specific farm by its ID")
     @ApiResponses(value = {
@@ -66,7 +67,7 @@ public class FarmController {
         return farm.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @PostMapping
     @Operation(summary = "Create a new farm", description = "Create a new farm with the provided details")
     @ApiResponses(value = {
@@ -80,7 +81,7 @@ public class FarmController {
         Farm createdFarm = farmService.createFarm(farm);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdFarm);
     }
-    
+
     @PutMapping("/{id}")
     @Operation(summary = "Update farm", description = "Update an existing farm by its ID")
     @ApiResponses(value = {
@@ -97,7 +98,7 @@ public class FarmController {
         Farm updatedFarm = farmService.updateFarm(id, farmDetails);
         return ResponseEntity.ok(updatedFarm);
     }
-    
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete farm", description = "Delete a farm by its ID. This will also delete all associated vegetables and fruits.")
     @ApiResponses(value = {
@@ -114,11 +115,12 @@ public class FarmController {
 
     @GetMapping(("/{id}/getFarmWithFruitCount"))
     public ResponseEntity<FarmDto> getFarmWithFruitCount(
-            @PathVariable(name = "id") Long id){
+            @PathVariable(name = "id") Long id) {
         FarmDto farmDto = farmService.getFarmWithFruitCount(id);
         return ResponseEntity.ok(farmDto);
     }
-//1. Поиск ферм по названию (частичный поиск)
+
+    //1. Поиск ферм по названию (частичный поиск)
     @GetMapping("/search")
     public ResponseEntity<List<Farm>> searchFarms(@RequestParam(name = "name") String searchTerm) {
         if (searchTerm == null || searchTerm.trim().isEmpty()) {
@@ -126,13 +128,34 @@ public class FarmController {
         }
         return ResponseEntity.ok(farmService.searchFarmsByName(searchTerm));
     }
-//5. Получение статистики по ферме
+
+    //5. Получение статистики по ферме
     @GetMapping("/{id}/stats")
-    public ResponseEntity<FarmStats> getFarmStats(@PathVariable(name = "id") Long farmId) {
-        try {
-            return ResponseEntity.ok(farmService.getFarmStats(farmId));
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).build();
-        }
+    public ResponseEntity<FarmStatsDTO> getFarmStats(@PathVariable(name = "id") Long farmId) {
+        FarmStatsDTO farmStatsDTO = farmService.getFarmStats(farmId);
+        return ResponseEntity.ok(farmStatsDTO);
+    }
+
+    @GetMapping("/sorted")
+    public ResponseEntity<List<FarmDto>> getFarmSorted(
+            @RequestParam String sortBy,
+            @RequestParam(defaultValue = "asc") String order) {
+        List<FarmDto> farms = farmService.findFarmSorted(sortBy, order);
+        return ResponseEntity.ok(farms);
+    }
+
+    // 8. Получение ферм с сортировкой по количеству фруктов или овощейpubl
+    ic ResponseEntity<List<FarmSortedDTO>>
+
+    getFarmsSorted(
+            @RequestParam String sortBy, @Req
+            uestParam(defaultValue="asc") String order)
+
+    {
+        List<FarmS
+                ortedD
+        TO > farms = farmService.findFarmsSorted(sortBy, order);
+        return ResponseEntit
+        y.ok(farms);
     }
 }

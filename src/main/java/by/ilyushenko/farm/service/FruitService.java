@@ -114,10 +114,10 @@ public class FruitService implements FruitServiceInterface {
     @Transactional
     public Fruit moveFruitToFarm(Long fruitId, Long farmId) {
         Fruit fruit = fruitRepository.findById(fruitId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fruit not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Fruit not found" + farmId));
 
         Farm farm = farmRepository.findById(farmId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Farm not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Farm not found"+ farmId));
 
         fruit.setFarm(farm);
         return fruitRepository.save(fruit);
@@ -126,7 +126,7 @@ public class FruitService implements FruitServiceInterface {
     @Transactional
     public void deleteFruitsByFarmId(Long farmId) {
         if (!farmRepository.existsById(farmId)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Farm not found");
+            throw new ResourceNotFoundException("Farm not found" + farmId);
         }
         fruitRepository.deleteByFarmId(farmId);
     }
