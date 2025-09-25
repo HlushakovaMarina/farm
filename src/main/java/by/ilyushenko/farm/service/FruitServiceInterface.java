@@ -24,4 +24,10 @@ public interface FruitServiceInterface {
     List<Fruit> findByColor(String color);
     
     boolean existsById(Long id);
+
+    List<Fruit> filterFruitsByColor(String color);
+
+    Fruit moveFruitToFarm(Long fruitId, Long farmId);
+
+    void deleteFruitsByFarmId(Long farmId);
 }

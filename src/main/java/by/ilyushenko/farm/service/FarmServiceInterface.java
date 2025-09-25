@@ -28,4 +28,8 @@ public interface FarmServiceInterface {
     List<Farm> getFarmByLocation(String location);
 
     FarmDto getFarmWithFruitCount(Long id);
+
+    List<Farm> searchFarmsByName(String searchTerm);
+
+    FarmStats getFarmStats(Long farmId);
 }

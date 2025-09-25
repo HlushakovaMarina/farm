@@ -28,4 +28,11 @@ public interface VegetableRepository extends JpaRepository<Vegetable, Long> {
     List<Vegetable> findByFarmIdWithFarm(@Param("farmId") Long farmId);
 
     List<Vegetable> findByColorAndWeight(String color, Double weight);
+
+    List<Vegetable> findByWeightGreaterThan(Integer minWeight);
+
+    long countByFarmId(Long farmId);
+
+    @Transactional
+    void deleteByFarmId(Long farmId);
 }

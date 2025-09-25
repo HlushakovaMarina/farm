@@ -26,4 +26,11 @@ public interface FruitRepository extends JpaRepository<Fruit, Long> {
     
     @Query("SELECT f FROM Fruit f JOIN FETCH f.farm WHERE f.farm.id = :farmId")
     List<Fruit> findByFarmIdWithFarm(@Param("farmId") Long farmId);
+
+    List<Fruit> findByColor(String color);
+
+    long countByFarmId(Long farmId);
+
+    @Transactional
+    void deleteByFarmId(Long farmId);
 }

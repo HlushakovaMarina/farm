@@ -101,4 +101,33 @@ public class FruitService implements FruitServiceInterface {
     public boolean existsById(Long id) {
         return fruitRepository.existsById(id);
     }
+
+    //2. Фильтрация фруктов по цвету
+    public List<Fruit> filterFruitsByColor(String color) {
+        if (color == null || color.trim().isEmpty()) {
+            return fruitRepository.findAll();
+        } else {
+            return fruitRepository.findByColor(color);
+        }
+    }
+    //4. Перемещение фрукта или овоща на другую ферму
+    @Transactional
+    public Fruit moveFruitToFarm(Long fruitId, Long farmId) {
+        Fruit fruit = fruitRepository.findById(fruitId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Fruit not found"));
+
+        Farm farm = farmRepository.findById(farmId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Farm not found"));
+
+        fruit.setFarm(farm);
+        return fruitRepository.save(fruit);
+    }
+//6. Массовое удаление фруктов или овощей по ферме
+    @Transactional
+    public void deleteFruitsByFarmId(Long farmId) {
+        if (!farmRepository.existsById(farmId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Farm not found");
+        }
+        fruitRepository.deleteByFarmId(farmId);
+    }
 }

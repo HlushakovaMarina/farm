@@ -107,4 +107,32 @@ public class VegetableService implements VegetableServiceInterface {
     public List<Vegetable> findByColorAndWeight(String color, Double weight){
         return vegetableRepository.findByColorAndWeight(color, weight);
     }
+//3. Получение овощей с весом больше заданного
+    @Transactional(readOnly = true)
+    public List<Vegetable> getVegetablesByMinWeight(Integer minWeight) {
+        if (minWeight <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "минимальный вес должен быть больше 0");
+        }
+        return vegetableRepository.findByWeightGreaterThan(minWeight);
+    }
+//4. Перемещение фрукта или овоща на другую ферму
+    @Transactional
+    public Vegetable moveVegetableToFarm(Long vegetableId, Long farmId) {
+        Vegetable vegetable = vegetableRepository.findById(vegetableId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Vegetable not found"));
+
+        Farm farm = farmRepository.findById(farmId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Farm not found"));
+
+        vegetable.setFarm(farm);
+        return vegetableRepository.save(vegetable);
+    }
+//6. Массовое удаление фруктов или овощей по ферме
+    @Transactional
+    public void deleteVegetablesByFarmId(Long farmId) {
+        if (!farmRepository.existsById(farmId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Farm not found");
+        }
+        vegetableRepository.deleteByFarmId(farmId);
+    }
 }

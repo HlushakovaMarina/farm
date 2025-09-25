@@ -17,6 +17,8 @@ import java.util.Optional;
 public class FarmService implements FarmServiceInterface {
 
     private final FarmRepository farmRepository;
+    private final FruitRepository fruitRepository;
+    private final VegetableRepository vegetableRepository;
 
     @Autowired
     public FarmService(FarmRepository farmRepository) {
@@ -84,5 +86,32 @@ public class FarmService implements FarmServiceInterface {
         int fruitCount = farm.getFruits().size();
         FarmDto farmDto = new FarmDto(farm.getName(),fruitCount);
         return farmDto;
+    }
+    //1. Поиск ферм по названию (частичный поиск)
+    public List<Farm> searchFarmsByName(String searchTerm) {
+        return farmRepository.findByNameContainingIgnoreCase(searchTerm);
+    }
+//5. Получение статистики по ферме
+    public FarmStats getFarmStats(Long farmId) {
+        Farm farm = farmRepository.findById(farmId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Farm not found"));
+
+        FarmStats stats = new FarmStats();
+        stats.setFarmId(farmId);
+        stats.setFarmName(farm.getName());
+        stats.setFruitCount(fruitRepository.countByFarmId(farmId));
+        stats.setVegetableCount(vegetableRepository.countByFarmId(farmId));
+
+        long totalWeight = 0;
+        List<Vegetable> vegetables = vegetableRepository.findByFarmId(farmId);
+        for (Vegetable vegetable : vegetables) {
+            totalWeight += vegetable.getWeight();
+        }
+        List<Fruit> fruits = fruitRepository.findByFarmId(farmId);
+        for (Fruit fruit : fruits) {
+            totalWeight += fruit.getWeight();
+        }
+        stats.setTotalWeight(totalWeight);
+        return stats;
     }
 }

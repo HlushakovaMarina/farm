@@ -115,4 +115,30 @@ public class FruitController {
         List<Fruit> fruits = fruitService.getFruitsByFarmId(farmId);
         return ResponseEntity.ok(fruits);
     }
+    //2. Фильтрация фруктов по цвету
+    @GetMapping("/filter")
+    public ResponseEntity<List<Fruit>> filterFruits(@RequestParam(name = "color", required = false) String color) {
+        return ResponseEntity.ok(fruitService.filterFruitsByColor(color));
+    }
+//4. Перемещение фрукта или овоща на другую ферму
+    @PatchMapping("/{id}/move")
+    public ResponseEntity<Fruit> moveFruit(
+            @PathVariable(name = "id") Long fruitId,
+            @RequestParam(name = "farmId") Long farmId) {
+        try {
+            return ResponseEntity.ok(fruitService.moveFruitToFarm(fruitId, farmId));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+    }
+//6.
+    @DeleteMapping("/farm/{farmId}")
+    public ResponseEntity<Void> deleteFruitsByFarm(@PathVariable(name = "farmId") Long farmId) {
+        try {
+            fruitService.deleteFruitsByFarmId(farmId);
+            return ResponseEntity.noContent().build();
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+    }
 }

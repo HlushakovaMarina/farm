@@ -26,4 +26,8 @@ public interface VegetableServiceInterface {
     boolean existsById(Long id);
 
     List<Vegetable> findByColorAndWeight(String color, Double weight);
+
+    List<Vegetable> getVegetablesByMinWeight(Integer minWeight);
+
+    Vegetable moveVegetableToFarm(Long vegetableId, Long farmId);
 }

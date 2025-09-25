@@ -118,4 +118,21 @@ public class FarmController {
         FarmDto farmDto = farmService.getFarmWithFruitCount(id);
         return ResponseEntity.ok(farmDto);
     }
+//1. Поиск ферм по названию (частичный поиск)
+    @GetMapping("/search")
+    public ResponseEntity<List<Farm>> searchFarms(@RequestParam(name = "name") String searchTerm) {
+        if (searchTerm == null || searchTerm.trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(farmService.searchFarmsByName(searchTerm));
+    }
+//5. Получение статистики по ферме
+    @GetMapping("/{id}/stats")
+    public ResponseEntity<FarmStats> getFarmStats(@PathVariable(name = "id") Long farmId) {
+        try {
+            return ResponseEntity.ok(farmService.getFarmStats(farmId));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+    }
 }

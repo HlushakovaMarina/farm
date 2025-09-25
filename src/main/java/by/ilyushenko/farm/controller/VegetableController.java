@@ -20,14 +20,14 @@ import java.util.Optional;
 @RequestMapping("/api/vegetables")
 @Tag(name = "Vegetable Management", description = "APIs for managing vegetables")
 public class VegetableController {
-    
+
     private final VegetableServiceInterface vegetableService;
-    
+
     @Autowired
     public VegetableController(VegetableServiceInterface vegetableService) {
         this.vegetableService = vegetableService;
     }
-    
+
     @GetMapping
     @Operation(summary = "Get all vegetables", description = "Retrieve a list of all vegetables with their farm information")
     @ApiResponses(value = {
@@ -38,7 +38,7 @@ public class VegetableController {
         List<Vegetable> vegetables = vegetableService.getAllVegetables();
         return ResponseEntity.ok(vegetables);
     }
-    
+
     @GetMapping("/{id}")
     @Operation(summary = "Get vegetable by ID", description = "Retrieve a specific vegetable by its ID")
     @ApiResponses(value = {
@@ -53,7 +53,7 @@ public class VegetableController {
         return vegetable.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-    
+
     @PostMapping
     @Operation(summary = "Create a new vegetable", description = "Create a new vegetable and assign it to a farm")
     @ApiResponses(value = {
@@ -69,7 +69,7 @@ public class VegetableController {
         Vegetable createdVegetable = vegetableService.createVegetable(vegetable, farmId);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdVegetable);
     }
-    
+
     @PutMapping("/{id}")
     @Operation(summary = "Update vegetable", description = "Update an existing vegetable and optionally change its farm")
     @ApiResponses(value = {
@@ -88,7 +88,7 @@ public class VegetableController {
         Vegetable updatedVegetable = vegetableService.updateVegetable(id, vegetableDetails, farmId);
         return ResponseEntity.ok(updatedVegetable);
     }
-    
+
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete vegetable", description = "Delete a vegetable by its ID")
     @ApiResponses(value = {
@@ -102,7 +102,7 @@ public class VegetableController {
         vegetableService.deleteVegetable(id);
         return ResponseEntity.noContent().build();
     }
-    
+
     @GetMapping("/farm/{farmId}")
     @Operation(summary = "Get vegetables by farm ID", description = "Retrieve all vegetables belonging to a specific farm")
     @ApiResponses(value = {
@@ -116,5 +116,33 @@ public class VegetableController {
         return ResponseEntity.ok(vegetables);
     }
 
-
+    @GetMapping("/weight")
+    public ResponseEntity<List<Vegetable>> getVegetablesByWeight(@RequestParam(name = "minWeight") Integer minWeight) {
+        try {
+            return ResponseEntity.ok(vegetableService.getVegetablesByMinWeight(minWeight));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+    }
+    //4. Перемещение фрукта или овоща на другую ферму
+    @PatchMapping("/{id}/move")
+    public ResponseEntity<Vegetable> moveVegetable(
+            @PathVariable(name = "id") Long vegetableId,
+            @RequestParam(name = "farmId") Long farmId) {
+        try {
+            return ResponseEntity.ok(vegetableService.moveVegetableToFarm(vegetableId, farmId));
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+    }
+    //6.
+    @DeleteMapping("/farm/{farmId}")
+    public ResponseEntity<Void> deleteVegetablesByFarm(@PathVariable(name = "farmId") Long farmId) {
+        try {
+            vegetableService.deleteVegetablesByFarmId(farmId);
+            return ResponseEntity.noContent().build(); // 204
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).build();
+        }
+    }
 }
